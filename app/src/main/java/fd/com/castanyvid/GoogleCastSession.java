@@ -2,6 +2,7 @@ package fd.com.castanyvid;
 
 import com.google.android.gms.cast.Cast;
 import com.google.android.gms.cast.MediaInfo;
+import com.google.android.gms.cast.MediaStatus;
 import com.google.android.gms.cast.RemoteMediaPlayer;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
@@ -13,6 +14,17 @@ public class GoogleCastSession implements CastService.CastSession {
     private final RemoteMediaPlayer.OnStatusUpdatedListener statusUpdateListener = new RemoteMediaPlayer.OnStatusUpdatedListener() {
         @Override
         public void onStatusUpdated() {
+            int playerState = remoteMediaPlayer.getMediaStatus().getPlayerState();
+
+            if (playerState == MediaStatus.PLAYER_STATE_PLAYING) {
+                listener.mediaPlaying();
+            } else if (playerState == MediaStatus.PLAYER_STATE_BUFFERING) {
+                listener.mediaBuffering();
+            } else if (playerState == MediaStatus.PLAYER_STATE_PAUSED) {
+                listener.mediaPaused();
+            } else if (playerState == MediaStatus.PLAYER_STATE_UNKNOWN) {
+                listener.mediaBuffering();
+            }
         }
     };
     private final RemoteMediaPlayer.OnMetadataUpdatedListener metadataUpdateListener = new RemoteMediaPlayer.OnMetadataUpdatedListener() {

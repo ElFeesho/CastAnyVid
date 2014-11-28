@@ -51,12 +51,17 @@ public class SpinnerCastDeviceListView implements CastDeviceListPresenter.CastDe
     public void displayCastDevices(List<CastDevice> castDevices) {
         castDeviceSpinner.setAdapter(new CastDeviceSpinnerAdapter(castDevices));
         castDeviceCastButton.setEnabled(true);
+
+        castDeviceCastButton.setEnabled(true);
+        castDeviceStopCastButton.setEnabled(true);
     }
 
     @Override
     public void displayNoCastDevices() {
         castDeviceSpinner.setAdapter(null);
+
         castDeviceCastButton.setEnabled(false);
+        castDeviceStopCastButton.setEnabled(false);
     }
 
     @Override
@@ -71,16 +76,12 @@ public class SpinnerCastDeviceListView implements CastDeviceListPresenter.CastDe
 
     @Override
     public void allowStartCast() {
-        castDeviceCastButton.setEnabled(true);
-        castDeviceStopCastButton.setEnabled(false);
         castDeviceCastButton.setVisibility(View.VISIBLE);
         castDeviceStopCastButton.setVisibility(View.GONE);
     }
 
     @Override
     public void allowStopCast() {
-        castDeviceCastButton.setEnabled(false);
-        castDeviceStopCastButton.setEnabled(true);
         castDeviceCastButton.setVisibility(View.GONE);
         castDeviceStopCastButton.setVisibility(View.VISIBLE);
     }
