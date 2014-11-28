@@ -11,7 +11,8 @@
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:animateLayoutChanges="true">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -30,12 +31,12 @@
 
             <Spinner
                 android:id="@+id/cast_device_list_view"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignBaseline="@+id/cast_device_list_cast"
                 android:layout_alignParentLeft="true"
                 android:layout_below="@+id/cast_device_title"
-                android:layout_toLeftOf="@+id/cast_device_list_cast" />
+                android:layout_marginRight="100dp" />
 
             <Button
                 android:id="@+id/cast_device_list_cast"
@@ -45,6 +46,16 @@
                 android:layout_below="@+id/cast_device_title"
                 android:drawableRight="@drawable/mr_ic_media_route_off_holo_light"
                 android:text="Cast" />
+
+            <Button
+                android:id="@+id/cast_device_list_stop_casting"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/cast_device_title"
+                android:drawableRight="@drawable/mr_ic_media_route_on_holo_light"
+                android:text="Stop"
+                android:visibility="gone" />
         </RelativeLayout>
     </android.support.v7.widget.CardView>
 
@@ -96,12 +107,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <TextView
+                android:id="@+id/cast_playback_controls_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="#000"
@@ -113,8 +125,48 @@
             <SeekBar
                 android:id="@+id/playback_position"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/cast_playback_controls_title" />
 
-        </LinearLayout>
+            <TextView
+                android:id="@+id/currentPosition"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@+id/playback_position"
+                android:text="0:00" />
+
+            <TextView
+                android:id="@+id/duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/playback_position"
+                android:text="0:00" />
+
+            <ImageButton
+                android:id="@+id/play_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/playback_position"
+                android:layout_centerHorizontal="true"
+                android:background="@null"
+                android:src="@android:drawable/ic_media_play" />
+
+            <ImageButton
+                android:id="@+id/pause_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/playback_position"
+                android:layout_centerHorizontal="true"
+                android:background="@null"
+                android:src="@android:drawable/ic_media_pause" />
+
+            <ProgressBar
+                android:id="@+id/buffer_indicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/playback_position" />
+        </RelativeLayout>
     </android.support.v7.widget.CardView>
 </LinearLayout>

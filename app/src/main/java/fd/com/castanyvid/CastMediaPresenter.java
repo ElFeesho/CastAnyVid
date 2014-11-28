@@ -40,6 +40,12 @@ public class CastMediaPresenter implements CastService.CastServiceListener {
         castSession = null;
     }
 
+    @Override
+    public void castSessionStopped() {
+        castMediaView.disallowUse();
+        castSession = null;
+    }
+
     public interface CastMediaView {
         void displayMediaUrl(String mediaUrl);
 

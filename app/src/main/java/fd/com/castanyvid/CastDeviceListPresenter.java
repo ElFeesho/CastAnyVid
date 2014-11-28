@@ -13,6 +13,11 @@ public class CastDeviceListPresenter implements CastService.CastServiceListener 
         public void castDeviceSelected(CastDevice selectedCastDevice) {
             listener.castRequested(selectedCastDevice);
         }
+
+        @Override
+        public void stopCasting() {
+            listener.stopCastRequested();
+        }
     };
 
     public CastDeviceListPresenter(CastDeviceListPresenterListener listener, CastDeviceListView castDeviceListView) {
@@ -33,14 +38,20 @@ public class CastDeviceListPresenter implements CastService.CastServiceListener 
 
     @Override
     public void castSessionAvailable(CastService.CastSession castSession) {
+        castDeviceListView.lockDeviceSelection();
+        castDeviceListView.allowStopCast();
     }
 
     @Override
     public void castSessionUnavailable() {
+        castDeviceListView.unlockDeviceSelection();
+        castDeviceListView.allowStartCast();
     }
 
-    public interface CastDeviceListPresenterListener {
-        void castRequested(CastDevice device);
+    @Override
+    public void castSessionStopped() {
+        castDeviceListView.unlockDeviceSelection();
+        castDeviceListView.allowStartCast();
     }
 
     public interface CastDeviceListView {
@@ -50,8 +61,25 @@ public class CastDeviceListPresenter implements CastService.CastServiceListener 
 
         public void displayNoCastDevices();
 
+        public void lockDeviceSelection();
+
+        public void unlockDeviceSelection();
+
+        public void allowStartCast();
+
+        public void allowStopCast();
+
         public interface CastDeviceListViewListener {
             void castDeviceSelected(CastDevice selectedCastDevice);
+
+            void stopCasting();
         }
     }
+
+    public interface CastDeviceListPresenterListener {
+        void castRequested(CastDevice device);
+
+        void stopCastRequested();
+    }
+
 }

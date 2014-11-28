@@ -1,19 +1,15 @@
 package fd.com.castanyvid;
 
-import android.content.Context;
 import android.database.DataSetObserver;
-import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
-import android.widget.TextView;
 
 import com.google.android.gms.cast.CastDevice;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,14 +17,79 @@ import java.util.List;
  */
 public class SpinnerCastDeviceListView implements CastDeviceListPresenter.CastDeviceListView {
 
-    private static class CastDeviceSpinnerAdapter implements SpinnerAdapter
-    {
+    private final Spinner castDeviceSpinner;
+    private final Button castDeviceCastButton;
+    private final Button castDeviceStopCastButton;
+    private CastDeviceListViewListener listener;
+
+    public SpinnerCastDeviceListView(final Spinner castDeviceSpinner, Button castDeviceCastButton, Button castDeviceStopCastButton) {
+        this.castDeviceSpinner = castDeviceSpinner;
+        this.castDeviceCastButton = castDeviceCastButton;
+        this.castDeviceStopCastButton = castDeviceStopCastButton;
+
+        castDeviceCastButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.castDeviceSelected((CastDevice) castDeviceSpinner.getSelectedItem());
+            }
+        });
+
+        castDeviceStopCastButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.stopCasting();
+            }
+        });
+    }
+
+    @Override
+    public void setListener(CastDeviceListViewListener listener) {
+        this.listener = listener;
+    }
+
+    @Override
+    public void displayCastDevices(List<CastDevice> castDevices) {
+        castDeviceSpinner.setAdapter(new CastDeviceSpinnerAdapter(castDevices));
+        castDeviceCastButton.setEnabled(true);
+    }
+
+    @Override
+    public void displayNoCastDevices() {
+        castDeviceSpinner.setAdapter(null);
+        castDeviceCastButton.setEnabled(false);
+    }
+
+    @Override
+    public void lockDeviceSelection() {
+        castDeviceSpinner.setEnabled(false);
+    }
+
+    @Override
+    public void unlockDeviceSelection() {
+        castDeviceSpinner.setEnabled(true);
+    }
+
+    @Override
+    public void allowStartCast() {
+        castDeviceCastButton.setEnabled(true);
+        castDeviceStopCastButton.setEnabled(false);
+        castDeviceCastButton.setVisibility(View.VISIBLE);
+        castDeviceStopCastButton.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void allowStopCast() {
+        castDeviceCastButton.setEnabled(false);
+        castDeviceStopCastButton.setEnabled(true);
+        castDeviceCastButton.setVisibility(View.GONE);
+        castDeviceStopCastButton.setVisibility(View.VISIBLE);
+    }
+
+    private static class CastDeviceSpinnerAdapter implements SpinnerAdapter {
+        private final List<CastDevice> castDevices;
         private DataSetObserver observer;
 
-        private final List<CastDevice> castDevices;
-
-        public CastDeviceSpinnerAdapter(List<CastDevice> castDevices)
-        {
+        public CastDeviceSpinnerAdapter(List<CastDevice> castDevices) {
             this.castDevices = castDevices;
         }
 
@@ -70,12 +131,9 @@ public class SpinnerCastDeviceListView implements CastDeviceListPresenter.CastDe
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             CastDeviceView view;
-            if(convertView != null)
-            {
+            if (convertView != null) {
                 view = (CastDeviceView) convertView;
-            }
-            else
-            {
+            } else {
                 view = (CastDeviceView) LayoutInflater.from(parent.getContext()).inflate(R.layout.li_castdevice, null);
             }
             view.setCastDevice(getItem(position));
@@ -96,41 +154,5 @@ public class SpinnerCastDeviceListView implements CastDeviceListPresenter.CastDe
         public boolean isEmpty() {
             return castDevices.isEmpty();
         }
-    }
-
-    private CastDeviceListViewListener listener;
-
-    private final Spinner castDeviceSpinner;
-    private final Button castDeviceCastButton;
-
-
-    public SpinnerCastDeviceListView(final Spinner castDeviceSpinner, Button castDeviceCastButton) {
-        this.castDeviceSpinner = castDeviceSpinner;
-        this.castDeviceCastButton = castDeviceCastButton;
-
-        castDeviceCastButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.castDeviceSelected((CastDevice) castDeviceSpinner.getSelectedItem());
-            }
-        });
-    }
-
-    @Override
-    public void setListener(CastDeviceListViewListener listener) {
-        this.listener = listener;
-    }
-
-    @Override
-    public void displayCastDevices(List<CastDevice> castDevices) {
-        castDeviceSpinner.setAdapter(new CastDeviceSpinnerAdapter(castDevices));
-        castDeviceCastButton.setEnabled(true);
-    }
-
-    @Override
-    public void displayNoCastDevices() {
-
-        castDeviceSpinner.setAdapter(null);
-        castDeviceCastButton.setEnabled(false);
     }
 }
