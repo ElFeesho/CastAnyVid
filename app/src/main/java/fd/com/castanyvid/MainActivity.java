@@ -1,20 +1,18 @@
 package fd.com.castanyvid;
 
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.v7.app.ActionBarActivity;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 
 import com.google.android.gms.cast.CastDevice;
-
-import java.util.List;
 
 
 public class MainActivity extends ActionBarActivity {
 
     private CastDeviceListPresenter castDeviceListPresenter;
+    private CastMediaPresenter castMediaPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +33,9 @@ public class MainActivity extends ActionBarActivity {
                 castService.requestCast(device);
             }
         },new SpinnerCastDeviceListView(castDeviceListSpinner, castDeviceListCastButton));
-        castService.addListener(castDeviceListPresenter);
+
+        castMediaPresenter = new CastMediaPresenter(new EditTextCastMediaView((EditText) findViewById(R.id.cast_content_uri), (Button) findViewById(R.id.cast_play_content)));
+        castService.addListener(castDeviceListPresenter, castMediaPresenter);
     }
 
     @Override
@@ -44,6 +44,7 @@ public class MainActivity extends ActionBarActivity {
         CastService castService = CastAVidApplication.getCastService(this);
         castService.stopSearchingForDevices();
         castService.removeListener(castDeviceListPresenter);
+        castService.removeListener(castMediaPresenter);
 
     }
 }

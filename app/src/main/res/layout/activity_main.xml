@@ -31,11 +31,11 @@
             <Spinner
                 android:id="@+id/cast_device_list_view"
                 android:layout_width="0dp"
-                android:layout_below="@+id/cast_device_title"
-                android:layout_alignParentLeft="true"
-                android:layout_toLeftOf="@+id/cast_device_list_cast"
+                android:layout_height="wrap_content"
                 android:layout_alignBaseline="@+id/cast_device_list_cast"
-                android:layout_height="wrap_content" />
+                android:layout_alignParentLeft="true"
+                android:layout_below="@+id/cast_device_title"
+                android:layout_toLeftOf="@+id/cast_device_list_cast" />
 
             <Button
                 android:id="@+id/cast_device_list_cast"
@@ -43,8 +43,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_below="@+id/cast_device_title"
-                android:text="Cast"
-                android:drawableRight="@drawable/mr_ic_media_route_off_holo_light"/>
+                android:drawableRight="@drawable/mr_ic_media_route_off_holo_light"
+                android:text="Cast" />
         </RelativeLayout>
     </android.support.v7.widget.CardView>
 
@@ -69,27 +69,26 @@
 
             <EditText
                 android:id="@+id/cast_content_uri"
-                android:layout_below="@+id/cast_url_title"
                 android:layout_width="0dp"
-                android:layout_alignParentLeft="true"
-                android:layout_toLeftOf="@+id/cast_play_content"
-                android:layout_alignBaseline="@+id/cast_play_content"
                 android:layout_height="wrap_content"
-                android:inputType="textUri" />
+                android:layout_alignBaseline="@+id/cast_play_content"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@+id/cast_url_title"
+                android:layout_toLeftOf="@+id/cast_play_content"
+                android:inputType="textUri"
+                android:text="http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4" />
 
             <Button
                 android:id="@+id/cast_play_content"
-                android:layout_below="@+id/cast_url_title"
-                android:layout_alignParentRight="true"
                 android:layout_width="100dp"
                 android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/cast_url_title"
                 android:layout_gravity="right"
-                android:text="Play"
-                android:drawableRight="@android:drawable/ic_media_play"/>
+                android:drawableRight="@android:drawable/ic_media_play"
+                android:text="Play" />
         </RelativeLayout>
     </android.support.v7.widget.CardView>
-
-
 
 
     <android.support.v7.widget.CardView

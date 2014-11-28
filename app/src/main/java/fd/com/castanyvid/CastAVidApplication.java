@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Bundle;
 
-import com.google.android.gms.cast.ApplicationMetadata;
 import com.google.android.gms.cast.Cast;
 import com.google.android.gms.cast.CastDevice;
 import com.google.android.gms.cast.CastMediaControlIntent;
@@ -12,11 +11,14 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.common.internal.e;
 
 public class CastAVidApplication extends Application {
 
     private CastService castService;
+
+    public static CastService getCastService(Context context) {
+        return ((CastAVidApplication) (context.getApplicationContext())).castService;
+    }
 
     @Override
     public void onCreate() {
@@ -25,16 +27,10 @@ public class CastAVidApplication extends Application {
         castService = new CastService(new GoogleApiCastDeviceFinder(this), new GoogleApiCastProvider(this));
     }
 
-    public static CastService getCastService(Context context) {
-        return ((CastAVidApplication)(context.getApplicationContext())).castService;
-    }
-
     private static class GoogleApiCastProvider implements CastService.CastProvider
     {
         private Context context;
         private GoogleApiClient apiClient;
-        private CastProviderListener listener;
-
         private GoogleApiClient.ConnectionCallbacks connectionCallbacks = new GoogleApiClient.ConnectionCallbacks() {
             public boolean waitingForReconnect;
 
@@ -44,6 +40,7 @@ public class CastAVidApplication extends Application {
                 {
                     waitingForReconnect = false;
                     // ... reconnect some stuff!
+                    listener.castSessionAvailable(new GoogleCastSession(apiClient));
                 }
                 else
                 {
@@ -55,11 +52,6 @@ public class CastAVidApplication extends Application {
                                 public void onResult(Cast.ApplicationConnectionResult result) {
                                     Status status = result.getStatus();
                                     if (status.isSuccess()) {
-                                        ApplicationMetadata applicationMetadata =
-                                                result.getApplicationMetadata();
-                                        String sessionId = result.getSessionId();
-                                        String applicationStatus = result.getApplicationStatus();
-                                        boolean wasLaunched = result.getWasLaunched();
                                         listener.castSessionAvailable(new GoogleCastSession(apiClient));
                                     } else {
                                         teardown();
@@ -78,9 +70,10 @@ public class CastAVidApplication extends Application {
             @Override
             public void onConnectionSuspended(int reason) {
                 waitingForReconnect = true;
+                listener.castSessionLost();
             }
         };
-
+        private CastProviderListener listener;
         private Cast.Listener castConnectionListener = new Cast.Listener()
         {
             @Override
@@ -91,7 +84,7 @@ public class CastAVidApplication extends Application {
             @Override
             public void onApplicationDisconnected(int statusCode) {
                 super.onApplicationDisconnected(statusCode);
-
+                listener.castSessionLost();
             }
         };
 

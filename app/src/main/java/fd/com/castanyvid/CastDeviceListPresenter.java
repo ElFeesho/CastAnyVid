@@ -4,31 +4,10 @@ import com.google.android.gms.cast.CastDevice;
 
 import java.util.List;
 
-/**
- * Created by chris on 27/11/14.
- */
 public class CastDeviceListPresenter implements CastService.CastServiceListener {
-
-    public interface CastDeviceListPresenterListener
-    {
-        void castRequested(CastDevice device);
-    }
-
-    public interface CastDeviceListView
-    {
-        public interface CastDeviceListViewListener
-        {
-            void castDeviceSelected(CastDevice selectedCastDevice);
-        }
-
-        public void setListener(CastDeviceListViewListener listener);
-        public void displayCastDevices(List<CastDevice> castDevices);
-        public void displayNoCastDevices();
-    }
 
     private final CastDeviceListView castDeviceListView;
     private final CastDeviceListPresenterListener listener;
-
     private final CastDeviceListView.CastDeviceListViewListener castDeviceListViewListener = new CastDeviceListView.CastDeviceListViewListener() {
         @Override
         public void castDeviceSelected(CastDevice selectedCastDevice) {
@@ -36,8 +15,7 @@ public class CastDeviceListPresenter implements CastService.CastServiceListener 
         }
     };
 
-    public CastDeviceListPresenter(CastDeviceListPresenterListener listener, CastDeviceListView castDeviceListView)
-    {
+    public CastDeviceListPresenter(CastDeviceListPresenterListener listener, CastDeviceListView castDeviceListView) {
         this.listener = listener;
         this.castDeviceListView = castDeviceListView;
         castDeviceListView.setListener(castDeviceListViewListener);
@@ -51,5 +29,29 @@ public class CastDeviceListPresenter implements CastService.CastServiceListener 
     @Override
     public void castDevicesUnavailable() {
         castDeviceListView.displayNoCastDevices();
+    }
+
+    @Override
+    public void castSessionAvailable(CastService.CastSession castSession) {
+    }
+
+    @Override
+    public void castSessionUnavailable() {
+    }
+
+    public interface CastDeviceListPresenterListener {
+        void castRequested(CastDevice device);
+    }
+
+    public interface CastDeviceListView {
+        public void setListener(CastDeviceListViewListener listener);
+
+        public void displayCastDevices(List<CastDevice> castDevices);
+
+        public void displayNoCastDevices();
+
+        public interface CastDeviceListViewListener {
+            void castDeviceSelected(CastDevice selectedCastDevice);
+        }
     }
 }
