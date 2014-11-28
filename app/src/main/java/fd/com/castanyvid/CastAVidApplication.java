@@ -2,18 +2,18 @@ package fd.com.castanyvid;
 
 import android.app.Application;
 import android.content.Context;
-import android.support.v7.media.MediaRouteSelector;
-import android.support.v7.media.MediaRouter;
+import android.os.Bundle;
 
+import com.google.android.gms.cast.ApplicationMetadata;
+import com.google.android.gms.cast.Cast;
 import com.google.android.gms.cast.CastDevice;
 import com.google.android.gms.cast.CastMediaControlIntent;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.common.internal.e;
 
-import java.util.ArrayList;
-import java.util.List;
-
-/**
- * Created by chris on 27/11/14.
- */
 public class CastAVidApplication extends Application {
 
     private CastService castService;
@@ -22,68 +22,114 @@ public class CastAVidApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        castService = new CastService(new GoogleApiCastDeviceFinder(this));
+        castService = new CastService(new GoogleApiCastDeviceFinder(this), new GoogleApiCastProvider(this));
     }
 
     public static CastService getCastService(Context context) {
         return ((CastAVidApplication)(context.getApplicationContext())).castService;
     }
 
-    private static class GoogleApiCastDeviceFinder implements CastService.CastDeviceFinder {
-        private final MediaRouteSelector mediaRouteSelector;
-        private final MediaRouter mediaRouter;
-        private android.support.v7.media.MediaRouter.Callback mediaRouterCallback = new MediaRouter.Callback() {
+    private static class GoogleApiCastProvider implements CastService.CastProvider
+    {
+        private Context context;
+        private GoogleApiClient apiClient;
+        private CastProviderListener listener;
+
+        private GoogleApiClient.ConnectionCallbacks connectionCallbacks = new GoogleApiClient.ConnectionCallbacks() {
+            public boolean waitingForReconnect;
+
             @Override
-            public void onRouteAdded(MediaRouter router, MediaRouter.RouteInfo route) {
-                super.onRouteAdded(router, route);
-                reportCastDeviceFound(CastDevice.getFromBundle(route.getExtras()));
+            public void onConnected(Bundle bundle) {
+                if(waitingForReconnect)
+                {
+                    waitingForReconnect = false;
+                    // ... reconnect some stuff!
+                }
+                else
+                {
+                    try
+                    {
+                        Cast.CastApi.launchApplication(apiClient, CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID, false).setResultCallback(
+                            new ResultCallback<Cast.ApplicationConnectionResult>() {
+                                @Override
+                                public void onResult(Cast.ApplicationConnectionResult result) {
+                                    Status status = result.getStatus();
+                                    if (status.isSuccess()) {
+                                        ApplicationMetadata applicationMetadata =
+                                                result.getApplicationMetadata();
+                                        String sessionId = result.getSessionId();
+                                        String applicationStatus = result.getApplicationStatus();
+                                        boolean wasLaunched = result.getWasLaunched();
+                                        listener.castSessionAvailable(new GoogleCastSession(apiClient));
+                                    } else {
+                                        teardown();
+                                    }
+                                }
+
+                            });
+                    }
+                    catch(Exception e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
             }
 
             @Override
-            public void onRouteRemoved(MediaRouter router, MediaRouter.RouteInfo route) {
-                super.onRouteRemoved(router, route);
-                reportCastDeviceLost(CastDevice.getFromBundle(route.getExtras()));
-            }
-
-            @Override
-            public void onRouteChanged(MediaRouter router, MediaRouter.RouteInfo route) {
-                super.onRouteChanged(router, route);
+            public void onConnectionSuspended(int reason) {
+                waitingForReconnect = true;
             }
         };
 
-        private CastDeviceFinderListener castDeviceFinderListener;
-
-        private void reportCastDeviceFound(CastDevice castDevice) {
-            castDeviceFinderListener.castDeviceFound(castDevice);
-        }
-
-        private void reportCastDeviceLost(CastDevice castDevice) {
-            castDeviceFinderListener.castDeviceLost(castDevice);
-        }
-
-        public GoogleApiCastDeviceFinder(Context context)
+        private Cast.Listener castConnectionListener = new Cast.Listener()
         {
-            mediaRouteSelector = new MediaRouteSelector.Builder()
-                    .addControlCategory(CastMediaControlIntent.categoryForCast(CastMediaControlIntent.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID))
+            @Override
+            public void onApplicationStatusChanged() {
+                super.onApplicationStatusChanged();
+            }
+
+            @Override
+            public void onApplicationDisconnected(int statusCode) {
+                super.onApplicationDisconnected(statusCode);
+
+            }
+        };
+
+        private GoogleApiClient.OnConnectionFailedListener connectionFailedCallbacks = new GoogleApiClient.OnConnectionFailedListener()
+        {
+            @Override
+            public void onConnectionFailed(ConnectionResult connectionResult) {
+
+            }
+        };
+
+        public GoogleApiCastProvider(Context context)
+        {
+            this.context = context;
+        }
+
+        @Override
+        public void setListener(CastProviderListener listener) {
+            this.listener = listener;
+        }
+
+        @Override
+        public void castRequestedForDevice(CastDevice device) {
+            Cast.CastOptions.Builder apiOptionsBuilder = Cast.CastOptions
+                    .builder(device, castConnectionListener);
+
+            apiClient = new GoogleApiClient.Builder(context)
+                    .addApi(Cast.API, apiOptionsBuilder.build())
+                    .addConnectionCallbacks(connectionCallbacks)
+                    .addOnConnectionFailedListener(connectionFailedCallbacks)
                     .build();
-            mediaRouter = MediaRouter.getInstance(context);
+
+            apiClient.connect();
         }
 
-
-        @Override
-        public void addListener(CastDeviceFinderListener listener) {
-            castDeviceFinderListener = listener;
-        }
-
-        @Override
-        public void startSearching() {
-            mediaRouter.addCallback(mediaRouteSelector, mediaRouterCallback,
-                    MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY);
-        }
-
-        @Override
-        public void stopSearching() {
-            mediaRouter.removeCallback(mediaRouterCallback);
+        private void teardown() {
         }
     }
+
+
 }

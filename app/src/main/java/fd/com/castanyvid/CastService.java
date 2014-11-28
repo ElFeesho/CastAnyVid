@@ -25,13 +25,32 @@ public class CastService {
         public void stopSearching();
     }
 
+    public interface CastSession
+    {
+        public void loadUrl(String url);
+    }
+
+    public interface CastProvider
+    {
+        public interface CastProviderListener
+        {
+            void castSessionAvailable(CastSession session);
+            void castSessionLost();
+        }
+
+        void setListener(CastProviderListener listener);
+        void castRequestedForDevice(CastDevice device);
+    }
+
     public interface CastServiceListener {
-        public void castDeviceListChanged(List<CastDevice> castDevices);
+        public void castDevicesAvailable(List<CastDevice> castDevices);
+        public void castDevicesUnavailable();
     }
 
     private final CastDeviceFinder castDeviceFinder;
-    private final List<CastServiceListener> listeners = new ArrayList<CastServiceListener>();
+    private final CastProvider castProvider;
 
+    private final List<CastServiceListener> listeners = new ArrayList<CastServiceListener>();
     private final List<CastDevice> castDevices = new ArrayList<CastDevice>();
 
     private final CastDeviceFinder.CastDeviceFinderListener castDeviceFinderListener = new CastDeviceFinder.CastDeviceFinderListener() {
@@ -48,9 +67,24 @@ public class CastService {
         }
     };
 
-    public CastService(CastDeviceFinder castDeviceFinder) {
+    private final CastProvider.CastProviderListener castProviderListener = new CastProvider.CastProviderListener() {
+        @Override
+        public void castSessionAvailable(CastSession session) {
+
+        }
+
+        @Override
+        public void castSessionLost() {
+
+        }
+    };
+
+    public CastService(CastDeviceFinder castDeviceFinder, CastProvider castProvider) {
         this.castDeviceFinder = castDeviceFinder;
         castDeviceFinder.addListener(castDeviceFinderListener);
+
+        this.castProvider = castProvider;
+        castProvider.setListener(castProviderListener);
     }
 
     public void addListener(CastServiceListener listener) {
@@ -74,8 +108,17 @@ public class CastService {
     private void reportCastDeviceListChanged() {
         for(CastServiceListener listener : listeners)
         {
-            listener.castDeviceListChanged(Collections.unmodifiableList(castDevices));
+            if(castDevices.size()>0) {
+                listener.castDevicesAvailable(Collections.unmodifiableList(castDevices));
+            }
+            else
+            {
+                listener.castDevicesUnavailable();
+            }
         }
     }
 
+    public void requestCast(CastDevice device) {
+        castProvider.castRequestedForDevice(device);
+    }
 }

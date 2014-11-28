@@ -6,6 +6,7 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
@@ -18,7 +19,7 @@ import java.util.List;
 /**
  * Created by chris on 27/11/14.
  */
-public class SpinnerCastDeviceListView extends Spinner implements CastDeviceListPresenter.CastDeviceListView {
+public class SpinnerCastDeviceListView implements CastDeviceListPresenter.CastDeviceListView {
 
     private static class CastDeviceSpinnerAdapter implements SpinnerAdapter
     {
@@ -33,18 +34,7 @@ public class SpinnerCastDeviceListView extends Spinner implements CastDeviceList
 
         @Override
         public View getDropDownView(int position, View convertView, ViewGroup parent) {
-            TextView view;
-            if(convertView != null)
-            {
-                view = (TextView) convertView;
-            }
-            else
-            {
-                view = (TextView) LayoutInflater.from(parent.getContext()).inflate(android.R.layout.simple_spinner_dropdown_item, null);
-                view.setPadding(8, 8, 8, 8);
-            }
-            view.setText(getItem(position).getFriendlyName());
-            return view;
+            return getView(position, convertView, parent);
         }
 
         @Override
@@ -79,17 +69,16 @@ public class SpinnerCastDeviceListView extends Spinner implements CastDeviceList
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
-            TextView view;
+            CastDeviceView view;
             if(convertView != null)
             {
-                view = (TextView) convertView;
+                view = (CastDeviceView) convertView;
             }
             else
             {
-                view = (TextView) LayoutInflater.from(parent.getContext()).inflate(android.R.layout.simple_spinner_item, null);
-                view.setPadding(8, 8, 8, 8);
+                view = (CastDeviceView) LayoutInflater.from(parent.getContext()).inflate(R.layout.li_castdevice, null);
             }
-            view.setText(getItem(position).getFriendlyName());
+            view.setCastDevice(getItem(position));
             return view;
         }
 
@@ -109,26 +98,39 @@ public class SpinnerCastDeviceListView extends Spinner implements CastDeviceList
         }
     }
 
+    private CastDeviceListViewListener listener;
 
-    public SpinnerCastDeviceListView(Context context) {
-        super(context);
+    private final Spinner castDeviceSpinner;
+    private final Button castDeviceCastButton;
+
+
+    public SpinnerCastDeviceListView(final Spinner castDeviceSpinner, Button castDeviceCastButton) {
+        this.castDeviceSpinner = castDeviceSpinner;
+        this.castDeviceCastButton = castDeviceCastButton;
+
+        castDeviceCastButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.castDeviceSelected((CastDevice) castDeviceSpinner.getSelectedItem());
+            }
+        });
     }
 
-    public SpinnerCastDeviceListView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public SpinnerCastDeviceListView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+    @Override
+    public void setListener(CastDeviceListViewListener listener) {
+        this.listener = listener;
     }
 
     @Override
     public void displayCastDevices(List<CastDevice> castDevices) {
-        setAdapter(new CastDeviceSpinnerAdapter(castDevices));
+        castDeviceSpinner.setAdapter(new CastDeviceSpinnerAdapter(castDevices));
+        castDeviceCastButton.setEnabled(true);
     }
 
     @Override
     public void displayNoCastDevices() {
-        setAdapter(null);
+
+        castDeviceSpinner.setAdapter(null);
+        castDeviceCastButton.setEnabled(false);
     }
 }
