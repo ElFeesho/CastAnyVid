@@ -9,4 +9,15 @@ public class Duration {
     public Duration(long milliseconds) {
         this.milliseconds = milliseconds;
     }
+
+    @Override
+    public String toString() {
+        long seconds = milliseconds / 1000;
+        long hours = seconds / (60 * 60);
+        seconds -= hours * (60 * 60);
+        long minutes = seconds / 60;
+        seconds -= minutes * 60;
+
+        return String.format("%d:%02d:%02d", hours, minutes, seconds);
+    }
 }

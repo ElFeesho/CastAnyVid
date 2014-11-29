@@ -42,6 +42,9 @@ public class MainActivity extends ActionBarActivity {
             }
         }, new SpinnerCastDeviceListView((Spinner) findViewById(R.id.cast_device_list_view), (Button) findViewById(R.id.cast_device_list_cast), (Button) findViewById(R.id.cast_device_list_stop_casting)));
 
+        EditText castContentUri = (EditText) findViewById(R.id.cast_content_uri);
+        castContentUri.setText(getIntent().getDataString());
+
         castMediaPresenter = new CastMediaPresenter(new EditTextCastMediaView((EditText) findViewById(R.id.cast_content_uri), (Button) findViewById(R.id.cast_play_content)));
 
         castPlaybackControlPresenter = new CastPlaybackControlPresenter(new SeekbarPlaybackControlView((SeekBar) findViewById(R.id.playback_position), (TextView) findViewById(R.id.currentPosition), (TextView) findViewById(R.id.duration), findViewById(R.id.play_button), findViewById(R.id.pause_button), (ProgressBar) findViewById(R.id.buffer_indicator)));

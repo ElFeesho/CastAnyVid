@@ -1,5 +1,7 @@
 package fd.com.castanyvid;
 
+import android.os.Handler;
+
 import com.google.android.gms.cast.Cast;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaStatus;
@@ -18,24 +20,36 @@ public class GoogleCastSession implements CastService.CastSession {
 
             if (playerState == MediaStatus.PLAYER_STATE_PLAYING) {
                 listener.mediaPlaying();
+                startTimeUpdating();
             } else if (playerState == MediaStatus.PLAYER_STATE_BUFFERING) {
                 listener.mediaBuffering();
+                stopTimeUpdating();
             } else if (playerState == MediaStatus.PLAYER_STATE_PAUSED) {
                 listener.mediaPaused();
+                stopTimeUpdating();
             } else if (playerState == MediaStatus.PLAYER_STATE_UNKNOWN) {
                 listener.mediaBuffering();
+                stopTimeUpdating();
             }
         }
     };
+    private final RemoteMediaPlayer remoteMediaPlayer;
+    private final GoogleApiClient apiClient;
     private final RemoteMediaPlayer.OnMetadataUpdatedListener metadataUpdateListener = new RemoteMediaPlayer.OnMetadataUpdatedListener() {
         @Override
         public void onMetadataUpdated() {
-
+            remoteMediaPlayer.requestStatus(apiClient);
+            listener.mediaLoaded(remoteMediaPlayer.getMediaInfo().getContentId(), new Timestamp(remoteMediaPlayer.getApproximateStreamPosition()), new Duration(remoteMediaPlayer.getStreamDuration()));
         }
     };
-
-    private final RemoteMediaPlayer remoteMediaPlayer;
-    private final GoogleApiClient apiClient;
+    private Handler repeatHandler = new Handler();
+    private Runnable pollTimeRunnable = new Runnable() {
+        @Override
+        public void run() {
+            listener.mediaPositionUpdate(new Timestamp(remoteMediaPlayer.getApproximateStreamPosition()));
+            repeatHandler.postDelayed(this, 250);
+        }
+    };
     private Listener listener;
 
     public GoogleCastSession(GoogleApiClient apiClient) {
@@ -63,7 +77,7 @@ public class GoogleCastSession implements CastService.CastSession {
             @Override
             public void onResult(RemoteMediaPlayer.MediaChannelResult mediaChannelResult) {
                 if (mediaChannelResult.getStatus().isSuccess()) {
-                    listener.mediaLoaded(new Timestamp(remoteMediaPlayer.getApproximateStreamPosition()), new Duration(remoteMediaPlayer.getStreamDuration()));
+                    listener.mediaLoaded(remoteMediaPlayer.getMediaInfo().getContentId(), new Timestamp(remoteMediaPlayer.getApproximateStreamPosition()), new Duration(remoteMediaPlayer.getStreamDuration()));
                 }
             }
         });
@@ -81,6 +95,7 @@ public class GoogleCastSession implements CastService.CastSession {
             public void onResult(RemoteMediaPlayer.MediaChannelResult mediaChannelResult) {
                 if (mediaChannelResult.getStatus().isSuccess()) {
                     listener.mediaPlaying();
+                    startTimeUpdating();
                 }
             }
         });
@@ -93,8 +108,18 @@ public class GoogleCastSession implements CastService.CastSession {
             public void onResult(RemoteMediaPlayer.MediaChannelResult mediaChannelResult) {
                 if (mediaChannelResult.getStatus().isSuccess()) {
                     listener.mediaPaused();
+                    stopTimeUpdating();
                 }
             }
         });
+    }
+
+    private void startTimeUpdating() {
+        repeatHandler.removeCallbacks(pollTimeRunnable);
+        repeatHandler.post(pollTimeRunnable);
+    }
+
+    private void stopTimeUpdating() {
+        repeatHandler.removeCallbacks(pollTimeRunnable);
     }
 }

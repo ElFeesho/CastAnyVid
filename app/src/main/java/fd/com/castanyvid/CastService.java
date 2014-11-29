@@ -136,7 +136,7 @@ public class CastService {
 
             void mediaPaused();
 
-            void mediaLoaded(Timestamp timestamp, Duration duration);
+            void mediaLoaded(String contentId, Timestamp timestamp, Duration duration);
 
             void mediaPositionUpdate(Timestamp timestamp);
 

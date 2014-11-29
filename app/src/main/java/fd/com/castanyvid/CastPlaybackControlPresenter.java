@@ -45,7 +45,7 @@ public class CastPlaybackControlPresenter implements CastService.CastServiceList
         }
 
         @Override
-        public void mediaLoaded(Timestamp timestamp, Duration duration) {
+        public void mediaLoaded(String contentId, Timestamp timestamp, Duration duration) {
             castPlaybackControlView.setCurrentPlaybackPosition(timestamp);
             castPlaybackControlView.setDuration(duration);
         }

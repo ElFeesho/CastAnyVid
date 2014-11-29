@@ -112,13 +112,13 @@ public class SeekbarPlaybackControlView implements CastPlaybackControlPresenter.
 
     @Override
     public void setDuration(Duration duration) {
-        this.duration.setText(duration.milliseconds + "");
+        this.duration.setText(duration.toString());
         seekBar.setMax((int) duration.milliseconds);
     }
 
     @Override
     public void setCurrentPlaybackPosition(Timestamp timestamp) {
-        currentTime.setText(timestamp.milliseconds + "");
+        currentTime.setText(timestamp.toString());
         seekBar.setProgress((int) timestamp.milliseconds);
     }
 }
