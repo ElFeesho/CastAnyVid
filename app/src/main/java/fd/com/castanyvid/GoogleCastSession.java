@@ -63,6 +63,7 @@ public class GoogleCastSession implements CastService.CastSession {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        remoteMediaPlayer.requestStatus(apiClient);
     }
 
     @Override
