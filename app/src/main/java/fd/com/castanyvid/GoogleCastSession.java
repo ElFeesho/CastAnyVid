@@ -78,6 +78,12 @@ public class GoogleCastSession implements CastService.CastSession {
     }
 
     @Override
+    public void endSession() {
+        stopTimeUpdating();
+        listener = null;
+    }
+
+    @Override
     public void loadUrl(String url) {
         MediaInfo mediaInfo = new MediaInfo.Builder(url).setStreamType(MediaInfo.STREAM_TYPE_BUFFERED).setContentType("video/mp4").build();
         remoteMediaPlayer.load(apiClient, mediaInfo, true).setResultCallback(new ResultCallback<RemoteMediaPlayer.MediaChannelResult>() {

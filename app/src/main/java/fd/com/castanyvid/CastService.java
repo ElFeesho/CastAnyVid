@@ -83,6 +83,7 @@ public class CastService {
     }
 
     public void stopCasting() {
+        castSession.endSession();
         castProvider.stopCasting();
     }
 
@@ -139,6 +140,8 @@ public class CastService {
 
     public interface CastSession {
         void setListener(Listener listener);
+
+        void endSession();
 
         void loadUrl(String url);
 
