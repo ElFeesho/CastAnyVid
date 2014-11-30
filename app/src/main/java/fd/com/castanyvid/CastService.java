@@ -86,6 +86,19 @@ public class CastService {
         castProvider.stopCasting();
     }
 
+    public void requestVolumeIncrease() {
+        if (currentlyCasting()) {
+            castSession.increaseVolume();
+        }
+    }
+
+    public void requestVolumeDecrement() {
+        if (currentlyCasting()) {
+            castSession.decreaseVolume();
+        }
+    }
+
+
     private void reportCastDeviceListChanged() {
         for (CastServiceListener listener : listeners) {
             if (castDevices.size() > 0) {
@@ -98,12 +111,16 @@ public class CastService {
 
     private void reportCastSessionAvailabilityChanged() {
         for (CastServiceListener listener : listeners) {
-            if (castSession != null) {
+            if (currentlyCasting()) {
                 listener.castSessionAvailable(castSession);
             } else {
                 listener.castSessionUnavailable();
             }
         }
+    }
+
+    private boolean currentlyCasting() {
+        return castSession != null;
     }
 
     public interface CastDeviceFinder {
@@ -130,6 +147,10 @@ public class CastService {
         void play();
 
         void pause();
+
+        void increaseVolume();
+
+        void decreaseVolume();
 
         public interface Listener {
             void mediaPlaying();

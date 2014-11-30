@@ -18,6 +18,6 @@ public class Duration {
         long minutes = seconds / 60;
         seconds -= minutes * 60;
 
-        return String.format("%d:%02d:%02d", hours, minutes, seconds);
+        return String.format("%s%02d:%02d", hours > 0 ? (hours + ":") : (""), minutes, seconds);
     }
 }

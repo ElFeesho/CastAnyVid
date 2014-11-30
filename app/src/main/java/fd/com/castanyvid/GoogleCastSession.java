@@ -16,6 +16,10 @@ public class GoogleCastSession implements CastService.CastSession {
     private final RemoteMediaPlayer.OnStatusUpdatedListener statusUpdateListener = new RemoteMediaPlayer.OnStatusUpdatedListener() {
         @Override
         public void onStatusUpdated() {
+            if (remoteMediaPlayer.getMediaStatus() == null) {
+                return;
+            }
+
             int playerState = remoteMediaPlayer.getMediaStatus().getPlayerState();
 
             if (playerState == MediaStatus.PLAYER_STATE_PLAYING) {
@@ -38,8 +42,10 @@ public class GoogleCastSession implements CastService.CastSession {
     private final RemoteMediaPlayer.OnMetadataUpdatedListener metadataUpdateListener = new RemoteMediaPlayer.OnMetadataUpdatedListener() {
         @Override
         public void onMetadataUpdated() {
-            remoteMediaPlayer.requestStatus(apiClient);
-            listener.mediaLoaded(remoteMediaPlayer.getMediaInfo().getContentId(), new Timestamp(remoteMediaPlayer.getApproximateStreamPosition()), new Duration(remoteMediaPlayer.getStreamDuration()));
+            if (remoteMediaPlayer.getMediaInfo() != null) {
+                remoteMediaPlayer.requestStatus(apiClient);
+                listener.mediaLoaded(remoteMediaPlayer.getMediaInfo().getContentId(), new Timestamp(remoteMediaPlayer.getApproximateStreamPosition()), new Duration(remoteMediaPlayer.getStreamDuration()));
+            }
         }
     };
     private Handler repeatHandler = new Handler();
@@ -113,6 +119,24 @@ public class GoogleCastSession implements CastService.CastSession {
                 }
             }
         });
+    }
+
+    @Override
+    public void increaseVolume() {
+        try {
+            Cast.CastApi.setVolume(apiClient, Cast.CastApi.getVolume(apiClient) + 0.1f);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void decreaseVolume() {
+        try {
+            Cast.CastApi.setVolume(apiClient, Cast.CastApi.getVolume(apiClient) - 0.1f);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void startTimeUpdating() {

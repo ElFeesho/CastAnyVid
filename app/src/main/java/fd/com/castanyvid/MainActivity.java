@@ -2,6 +2,7 @@ package fd.com.castanyvid;
 
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.view.KeyEvent;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -49,6 +50,26 @@ public class MainActivity extends ActionBarActivity {
 
         castPlaybackControlPresenter = new CastPlaybackControlPresenter(new SeekbarPlaybackControlView((SeekBar) findViewById(R.id.playback_position), (TextView) findViewById(R.id.currentPosition), (TextView) findViewById(R.id.duration), findViewById(R.id.play_button), findViewById(R.id.pause_button), (ProgressBar) findViewById(R.id.buffer_indicator)));
         castService.addListener(castDeviceListPresenter, castMediaPresenter, castPlaybackControlPresenter);
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        int action = event.getAction();
+        int keyCode = event.getKeyCode();
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_VOLUME_UP:
+                if (action == KeyEvent.ACTION_DOWN) {
+                    CastAVidApplication.getCastService(this).requestVolumeIncrease();
+                }
+                return true;
+            case KeyEvent.KEYCODE_VOLUME_DOWN:
+                if (action == KeyEvent.ACTION_DOWN) {
+                    CastAVidApplication.getCastService(this).requestVolumeDecrement();
+                }
+                return true;
+            default:
+                return super.dispatchKeyEvent(event);
+        }
     }
 
     @Override
