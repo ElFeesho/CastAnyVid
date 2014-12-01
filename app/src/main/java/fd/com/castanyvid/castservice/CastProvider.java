@@ -10,6 +10,8 @@ public interface CastProvider {
     void stopCasting();
 
     public interface CastProviderListener {
+        void establishingCastSession();
+
         void castSessionAvailable(CastSession session);
 
         void castSessionLost();

@@ -1,6 +1,7 @@
 package fd.com.castanyvid;
 
 import android.database.DataSetObserver;
+import android.graphics.drawable.AnimationDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -82,8 +83,16 @@ public class SpinnerCastDeviceListView implements CastDeviceListPresenter.CastDe
 
     @Override
     public void allowStopCast() {
+        castDeviceCastButton.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.mr_ic_media_route_off_holo_light, 0);
         castDeviceCastButton.setVisibility(View.GONE);
         castDeviceStopCastButton.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void showConnecting() {
+        AnimationDrawable connecting = (AnimationDrawable) castDeviceCastButton.getContext().getDrawable(R.drawable.mr_ic_media_route_connecting_holo_light);
+        castDeviceCastButton.setCompoundDrawablesWithIntrinsicBounds(null, null, connecting, null);
+        connecting.start();
     }
 
     private static class CastDeviceSpinnerAdapter implements SpinnerAdapter {

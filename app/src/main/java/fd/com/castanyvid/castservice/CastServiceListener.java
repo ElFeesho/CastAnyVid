@@ -14,4 +14,6 @@ public interface CastServiceListener {
     void castSessionUnavailable();
 
     void castSessionStopped();
+
+    void castSessionStarting();
 }

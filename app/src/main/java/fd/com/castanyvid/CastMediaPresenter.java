@@ -84,6 +84,9 @@ public class CastMediaPresenter implements CastServiceListener {
         teardownSession();
     }
 
+    @Override
+    public void castSessionStarting() {}
+
     private void teardownSession() {
         castMediaView.disallowUse();
         if(castSession != null) {

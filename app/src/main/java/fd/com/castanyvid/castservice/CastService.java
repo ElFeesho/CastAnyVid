@@ -39,6 +39,11 @@ public class CastService {
 
     private final CastProvider.CastProviderListener castProviderListener = new CastProvider.CastProviderListener() {
         @Override
+        public void establishingCastSession() {
+            reportCastSessionStarting();
+        }
+
+        @Override
         public void castSessionAvailable(CastSession session) {
             castSession = session;
             castDeviceFinder.stopSearching();
@@ -58,6 +63,7 @@ public class CastService {
             reportCastSessionStopped();
         }
     };
+
 
     private CastSession castSession;
 
@@ -135,6 +141,13 @@ public class CastService {
             } else {
                 listener.castSessionUnavailable();
             }
+        }
+    }
+
+    private void reportCastSessionStarting() {
+        for (CastServiceListener listener : listeners)
+        {
+            listener.castSessionStarting();
         }
     }
 

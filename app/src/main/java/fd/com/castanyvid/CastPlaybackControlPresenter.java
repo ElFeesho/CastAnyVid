@@ -128,6 +128,9 @@ public class CastPlaybackControlPresenter implements CastServiceListener {
         teardownSession();
     }
 
+    @Override
+    public void castSessionStarting() {}
+
     private void teardownSession() {
         castPlaybackControlView.disallowUse();
         castPlaybackControlView.reset();

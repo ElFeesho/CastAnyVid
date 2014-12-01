@@ -32,8 +32,7 @@
             <Spinner
                 android:id="@+id/cast_device_list_view"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignBaseline="@+id/cast_device_list_cast"
+                android:layout_height="50dp"
                 android:layout_alignParentLeft="true"
                 android:layout_below="@+id/cast_device_title"
                 android:layout_marginRight="100dp" />
@@ -41,7 +40,7 @@
             <Button
                 android:id="@+id/cast_device_list_cast"
                 android:layout_width="100dp"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:layout_alignParentRight="true"
                 android:layout_below="@+id/cast_device_title"
                 android:drawableRight="@drawable/mr_ic_media_route_off_holo_light"
@@ -50,7 +49,7 @@
             <Button
                 android:id="@+id/cast_device_list_stop_casting"
                 android:layout_width="100dp"
-                android:layout_height="wrap_content"
+                android:layout_height="50dp"
                 android:layout_alignParentRight="true"
                 android:layout_below="@+id/cast_device_title"
                 android:drawableRight="@drawable/mr_ic_media_route_on_holo_light"

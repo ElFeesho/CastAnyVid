@@ -83,6 +83,7 @@ public class GoogleApiCastProvider implements CastProvider {
 
     @Override
     public void castRequestedForDevice(CastDevice device) {
+        listener.establishingCastSession();
         Cast.CastOptions.Builder apiOptionsBuilder = Cast.CastOptions
                 .builder(device, castConnectionListener);
 

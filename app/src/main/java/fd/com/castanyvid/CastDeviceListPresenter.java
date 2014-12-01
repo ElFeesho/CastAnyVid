@@ -58,6 +58,11 @@ public class CastDeviceListPresenter implements CastServiceListener {
         castDeviceListView.allowStartCast();
     }
 
+    @Override
+    public void castSessionStarting() {
+        castDeviceListView.showConnecting();
+    }
+
     public interface CastDeviceListView {
         public void setListener(CastDeviceListViewListener listener);
 
@@ -72,6 +77,8 @@ public class CastDeviceListPresenter implements CastServiceListener {
         public void allowStartCast();
 
         public void allowStopCast();
+
+        void showConnecting();
 
         public interface CastDeviceListViewListener {
             void castDeviceSelected(CastDevice selectedCastDevice);
