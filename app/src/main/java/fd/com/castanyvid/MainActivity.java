@@ -1,5 +1,6 @@
 package fd.com.castanyvid;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
@@ -20,6 +21,7 @@ public class MainActivity extends ActionBarActivity {
     private CastDeviceListPresenter castDeviceListPresenter;
     private CastMediaPresenter castMediaPresenter;
     private CastPlaybackControlPresenter castPlaybackControlPresenter;
+    private CastLocalContentPresenter castLocalContentPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +53,24 @@ public class MainActivity extends ActionBarActivity {
         castMediaPresenter = new CastMediaPresenter(new EditTextCastMediaView((EditText) findViewById(R.id.cast_content_uri), (Button) findViewById(R.id.cast_play_content)));
 
         castPlaybackControlPresenter = new CastPlaybackControlPresenter(new SeekbarPlaybackControlView((SeekBar) findViewById(R.id.playback_position), (TextView) findViewById(R.id.currentPosition), (TextView) findViewById(R.id.duration), findViewById(R.id.play_button), findViewById(R.id.pause_button), (ProgressBar) findViewById(R.id.buffer_indicator)));
-        castService.addListener(castDeviceListPresenter, castMediaPresenter, castPlaybackControlPresenter);
+
+        castLocalContentPresenter = new CastLocalContentPresenter(new LocalContentView((EditText)findViewById(R.id.cast_local_content_uri), (Button)findViewById(R.id.cast_select_local_content), (Button)findViewById(R.id.cast_play_local_content)), new CastLocalContentPresenter.CastLocalContentSearchProvider() {
+            @Override
+            public void searchForLocalContent() {
+                startActivityForResult(new Intent(Intent.ACTION_PICK).setType("video/*"), 1);
+            }
+        });
+
+        castService.addListener(castDeviceListPresenter, castMediaPresenter, castPlaybackControlPresenter, castLocalContentPresenter);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == 1 && resultCode == RESULT_OK)
+        {
+            castLocalContentPresenter.displayUri(data.getDataString());
+        }
     }
 
     @Override
@@ -81,6 +100,8 @@ public class MainActivity extends ActionBarActivity {
         castService.stopSearchingForDevices();
         castService.removeListener(castDeviceListPresenter);
         castService.removeListener(castMediaPresenter);
+        castService.removeListener(castPlaybackControlPresenter);
+        castService.removeListener(castLocalContentPresenter);
 
     }
 }

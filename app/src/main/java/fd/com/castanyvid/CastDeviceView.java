@@ -2,19 +2,14 @@ package fd.com.castanyvid;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
 import com.google.android.gms.cast.CastDevice;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
+import fd.com.castanyvid.imageservice.ImageService;
 
 /**
  * Created by sawczc01 on 28/11/2014.
@@ -41,7 +36,7 @@ public class CastDeviceView extends TextView {
     }
 
     private void loadIconImage(Uri url) {
-        CastAVidApplication.getImageService(getContext()).getImage(url.toString(), new CastAVidApplication.ImageService.Listener() {
+        CastAVidApplication.getImageService(getContext()).getImage(url.toString(), new ImageService.Listener() {
             @Override
             public void imageRetrieved(Bitmap image) {
                 BitmapDrawable bd = new BitmapDrawable(getResources(), image);

@@ -35,25 +35,24 @@
                 android:layout_height="50dp"
                 android:layout_alignParentLeft="true"
                 android:layout_below="@+id/cast_device_title"
-                android:layout_marginRight="100dp" />
+                android:layout_marginRight="50dp" />
 
             <Button
                 android:id="@+id/cast_device_list_cast"
-                android:layout_width="100dp"
+                android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_alignParentRight="true"
                 android:layout_below="@+id/cast_device_title"
-                android:drawableRight="@drawable/mr_ic_media_route_off_holo_light"
-                android:text="Cast" />
+                android:drawableRight="@drawable/mr_ic_media_route_off_holo_light" />
 
             <Button
                 android:id="@+id/cast_device_list_stop_casting"
-                android:layout_width="100dp"
+                android:layout_width="50dp"
                 android:layout_height="50dp"
                 android:layout_alignParentRight="true"
                 android:layout_below="@+id/cast_device_title"
                 android:drawableRight="@drawable/mr_ic_media_route_on_holo_light"
-                android:text="Stop"
+
                 android:visibility="gone" />
         </RelativeLayout>
     </android.support.v7.widget.CardView>
@@ -90,16 +89,64 @@
 
             <Button
                 android:id="@+id/cast_play_content"
-                android:layout_width="100dp"
+                android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_below="@+id/cast_url_title"
                 android:layout_gravity="right"
-                android:drawableRight="@android:drawable/ic_media_play"
-                android:text="Play" />
+                android:drawableRight="@android:drawable/ic_media_play" />
         </RelativeLayout>
     </android.support.v7.widget.CardView>
 
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/cast_local_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#000"
+                android:fontFamily="light"
+                android:padding="8dp"
+                android:text="Cast Local File"
+                android:textColor="#fff" />
+
+            <EditText
+                android:id="@+id/cast_local_content_uri"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/cast_play_local_content"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@+id/cast_local_title"
+                android:layout_toLeftOf="@+id/cast_select_local_content"
+                android:inputType="textUri"
+                android:text="file:///sdcard/bbb.mp4" />
+
+
+            <Button
+                android:id="@+id/cast_select_local_content"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/cast_local_title"
+                android:layout_toLeftOf="@+id/cast_play_local_content"
+                android:drawableRight="@android:drawable/ic_menu_search" />
+
+            <Button
+                android:id="@+id/cast_play_local_content"
+                android:layout_width="50dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/cast_local_title"
+                android:layout_gravity="right"
+                android:drawableRight="@android:drawable/ic_media_play" />
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"

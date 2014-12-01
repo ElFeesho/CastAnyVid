@@ -16,6 +16,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import fd.com.castanyvid.castservice.CastService;
+import fd.com.castanyvid.imageservice.ImageService;
+import fd.com.castanyvid.imageservice.InMemoryImageService;
 
 public class CastAVidApplication extends Application {
 
@@ -38,73 +40,5 @@ public class CastAVidApplication extends Application {
         imageService = new InMemoryImageService();
     }
 
-    public interface ImageService {
-        public void getImage(String url, Listener listener);
-
-        public interface Listener {
-            void imageRetrieved(Bitmap image);
-
-            void failed();
-        }
-    }
-
-    private static class InMemoryImageService implements ImageService {
-        private Handler mainThreadHandler = new Handler(Looper.getMainLooper());
-        private Executor threadStrategy = Executors.newFixedThreadPool(3);
-
-        private HashMap<String, Bitmap> imageCache = new HashMap<>();
-
-        @Override
-        public void getImage(final String url, final Listener listener) {
-            if(imageCache.containsKey(url))
-            {
-                listener.imageRetrieved(imageCache.get(url));
-            } else {
-                threadStrategy.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        URL imageUrl = null;
-                        try {
-                            imageUrl = new URL(url);
-                        } catch (MalformedURLException e) {
-                            e.printStackTrace();
-                            notifyError(listener);
-                            return;
-                        }
-                        URLConnection connection = null;
-                        try {
-                            connection = imageUrl.openConnection();
-                            connection.connect();
-                            Bitmap result = BitmapFactory.decodeStream(connection.getInputStream());
-                            imageCache.put(url, result);
-                            notifySuccess(result, listener);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            notifyError(listener);
-                            return;
-                        }
-                    }
-                });
-            }
-        }
-
-        private void notifySuccess(final Bitmap bitmap, final Listener listener) {
-            mainThreadHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    listener.imageRetrieved(bitmap);
-                }
-            });
-        }
-
-        private void notifyError(final Listener listener) {
-            mainThreadHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    listener.failed();
-                }
-            });
-        }
-    }
 
 }
