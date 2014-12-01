@@ -1,10 +1,11 @@
-package fd.com.castanyvid;
+package fd.com.castanyvid.castservice;
 
 import com.google.android.gms.cast.CastDevice;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class CastService {
@@ -13,9 +14,18 @@ public class CastService {
     private final CastProvider castProvider;
     private final List<CastServiceListener> listeners = new ArrayList<CastServiceListener>();
     private final List<CastDevice> castDevices = new ArrayList<CastDevice>();
+
     private final CastDeviceFinder.CastDeviceFinderListener castDeviceFinderListener = new CastDeviceFinder.CastDeviceFinderListener() {
         @Override
         public void castDeviceFound(CastDevice device) {
+            for(CastDevice foundDevice : castDevices)
+            {
+                if(foundDevice.getDeviceId().contentEquals(device.getDeviceId()))
+                {
+                    castDevices.remove(foundDevice);
+                    break;
+                }
+            }
             castDevices.add(device);
             reportCastDeviceListChanged();
         }
@@ -26,25 +36,30 @@ public class CastService {
             reportCastDeviceListChanged();
         }
     };
-    private CastSession castSession;
+
     private final CastProvider.CastProviderListener castProviderListener = new CastProvider.CastProviderListener() {
         @Override
         public void castSessionAvailable(CastSession session) {
             castSession = session;
+            castDeviceFinder.stopSearching();
             reportCastSessionAvailabilityChanged();
         }
 
         @Override
         public void castSessionLost() {
             castSession = null;
+            castDeviceFinder.startSearching();
             reportCastSessionAvailabilityChanged();
         }
 
         @Override
         public void castSessionStopped() {
+            castDeviceFinder.startSearching();
             reportCastSessionStopped();
         }
     };
+
+    private CastSession castSession;
 
     public CastService(CastDeviceFinder castDeviceFinder, CastProvider castProvider) {
         this.castDeviceFinder = castDeviceFinder;
@@ -101,6 +116,9 @@ public class CastService {
 
 
     private void reportCastDeviceListChanged() {
+
+        sortDeviceList();
+
         for (CastServiceListener listener : listeners) {
             if (castDevices.size() > 0) {
                 listener.castDevicesAvailable(Collections.unmodifiableList(castDevices));
@@ -124,78 +142,12 @@ public class CastService {
         return castSession != null;
     }
 
-    public interface CastDeviceFinder {
-        public void addListener(CastDeviceFinderListener listener);
-
-        public void startSearching();
-
-        public void stopSearching();
-
-        public interface CastDeviceFinderListener {
-            public void castDeviceFound(CastDevice device);
-
-            public void castDeviceLost(CastDevice device);
-        }
+    private void sortDeviceList() {
+        Collections.sort(castDevices, new Comparator<CastDevice>() {
+            @Override
+            public int compare(CastDevice lhs, CastDevice rhs) {
+                return lhs.getFriendlyName().compareTo(rhs.getFriendlyName());
+            }
+        });
     }
-
-    public interface CastSession {
-        void setListener(Listener listener);
-
-        void endSession();
-
-        void loadUrl(String url);
-
-        void scrubTo(Timestamp timestamp);
-
-        void play();
-
-        void pause();
-
-        void increaseVolume();
-
-        void decreaseVolume();
-
-        public interface Listener {
-            void mediaPlaying();
-
-            void mediaPaused();
-
-            void mediaLoaded(String contentId, Timestamp timestamp, Duration duration);
-
-            void mediaPositionUpdate(Timestamp timestamp);
-
-            void mediaBuffering();
-        }
-
-    }
-
-    public interface CastProvider {
-        void setListener(CastProviderListener listener);
-
-        void castRequestedForDevice(CastDevice device);
-
-        void stopCasting();
-
-        public interface CastProviderListener {
-            void castSessionAvailable(CastSession session);
-
-            void castSessionLost();
-
-            void castSessionStopped();
-        }
-    }
-
-    public interface CastServiceListener {
-        void castDevicesAvailable(List<CastDevice> castDevices);
-
-        void castDevicesUnavailable();
-
-        void castSessionAvailable(CastSession castSession);
-
-        void castSessionUnavailable();
-
-        void castSessionStopped();
-    }
-
-
 }

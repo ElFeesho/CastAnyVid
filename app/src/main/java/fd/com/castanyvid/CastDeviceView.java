@@ -41,34 +41,17 @@ public class CastDeviceView extends TextView {
     }
 
     private void loadIconImage(Uri url) {
-        new AsyncTask<Uri, Void, Bitmap>(){
+        CastAVidApplication.getImageService(getContext()).getImage(url.toString(), new CastAVidApplication.ImageService.Listener() {
             @Override
-            protected Bitmap doInBackground(Uri... params) {
-                try {
-                    URL imageUrl = new URL(params[0].toString());
-                    URLConnection connection = imageUrl.openConnection();
-                    connection.connect();
-                    return BitmapFactory.decodeStream(connection.getInputStream());
-                } catch (MalformedURLException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                return null;
+            public void imageRetrieved(Bitmap image) {
+                BitmapDrawable bd = new BitmapDrawable(getResources(), image);
+                setCompoundDrawablesWithIntrinsicBounds(bd, null, null, null);
             }
 
             @Override
-            protected void onPostExecute(Bitmap bitmap) {
-                super.onPostExecute(bitmap);
-                if(bitmap != null) {
-                    BitmapDrawable bd = new BitmapDrawable(getResources(), bitmap);
-                    setCompoundDrawablesWithIntrinsicBounds(bd, null, null, null);
-                }
-                else
-                {
-                    setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_help, 0, 0, 0);
-                }
+            public void failed() {
+                setCompoundDrawablesWithIntrinsicBounds(android.R.drawable.ic_menu_help, 0, 0, 0);
             }
-        }.execute(url);
+        });
     }
 }

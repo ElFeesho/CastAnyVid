@@ -10,8 +10,17 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-public class GoogleCastSession implements CastService.CastSession {
+import fd.com.castanyvid.castservice.CastService;
+import fd.com.castanyvid.castservice.CastSession;
+
+public class GoogleCastSession implements CastSession {
+
+    private final RemoteMediaPlayer remoteMediaPlayer;
+    private final GoogleApiClient apiClient;
+    private final Handler repeatHandler = new Handler();
 
     private final RemoteMediaPlayer.OnStatusUpdatedListener statusUpdateListener = new RemoteMediaPlayer.OnStatusUpdatedListener() {
         @Override
@@ -23,40 +32,40 @@ public class GoogleCastSession implements CastService.CastSession {
             int playerState = remoteMediaPlayer.getMediaStatus().getPlayerState();
 
             if (playerState == MediaStatus.PLAYER_STATE_PLAYING) {
-                listener.mediaPlaying();
+                notifyMediaPlaying();
                 startTimeUpdating();
             } else if (playerState == MediaStatus.PLAYER_STATE_BUFFERING) {
-                listener.mediaBuffering();
+                notifyMediaBuffering();
                 stopTimeUpdating();
             } else if (playerState == MediaStatus.PLAYER_STATE_PAUSED) {
-                listener.mediaPaused();
+                notifyMediaPaused();
                 stopTimeUpdating();
             } else if (playerState == MediaStatus.PLAYER_STATE_UNKNOWN) {
-                listener.mediaBuffering();
+                notifyMediaBuffering();
                 stopTimeUpdating();
             }
         }
     };
-    private final RemoteMediaPlayer remoteMediaPlayer;
-    private final GoogleApiClient apiClient;
+
     private final RemoteMediaPlayer.OnMetadataUpdatedListener metadataUpdateListener = new RemoteMediaPlayer.OnMetadataUpdatedListener() {
         @Override
         public void onMetadataUpdated() {
             if (remoteMediaPlayer.getMediaInfo() != null) {
                 remoteMediaPlayer.requestStatus(apiClient);
-                listener.mediaLoaded(remoteMediaPlayer.getMediaInfo().getContentId(), new Timestamp(remoteMediaPlayer.getApproximateStreamPosition()), new Duration(remoteMediaPlayer.getStreamDuration()));
+                notifyMediaLoaded();
             }
         }
     };
-    private Handler repeatHandler = new Handler();
+
     private Runnable pollTimeRunnable = new Runnable() {
         @Override
         public void run() {
-            listener.mediaPositionUpdate(new Timestamp(remoteMediaPlayer.getApproximateStreamPosition()));
+            notifyMediaTimeUpdated();
             repeatHandler.postDelayed(this, 250);
         }
     };
-    private Listener listener;
+
+    private List<Listener> listeners = new ArrayList<Listener>();
 
     public GoogleCastSession(GoogleApiClient apiClient) {
         this.apiClient = apiClient;
@@ -73,14 +82,19 @@ public class GoogleCastSession implements CastService.CastSession {
     }
 
     @Override
-    public void setListener(Listener listener) {
-        this.listener = listener;
+    public void addListener(Listener listener) {
+        listeners.add(listener);
+    }
+
+    @Override
+    public void removeListener(Listener listener) {
+        listeners.remove(listener);
     }
 
     @Override
     public void endSession() {
         stopTimeUpdating();
-        listener = null;
+        listeners.clear();
     }
 
     @Override
@@ -90,7 +104,7 @@ public class GoogleCastSession implements CastService.CastSession {
             @Override
             public void onResult(RemoteMediaPlayer.MediaChannelResult mediaChannelResult) {
                 if (mediaChannelResult.getStatus().isSuccess()) {
-                    listener.mediaLoaded(remoteMediaPlayer.getMediaInfo().getContentId(), new Timestamp(remoteMediaPlayer.getApproximateStreamPosition()), new Duration(remoteMediaPlayer.getStreamDuration()));
+                    notifyMediaLoaded();
                 }
             }
         });
@@ -107,12 +121,13 @@ public class GoogleCastSession implements CastService.CastSession {
             @Override
             public void onResult(RemoteMediaPlayer.MediaChannelResult mediaChannelResult) {
                 if (mediaChannelResult.getStatus().isSuccess()) {
-                    listener.mediaPlaying();
+                    notifyMediaPlaying();
                     startTimeUpdating();
                 }
             }
         });
     }
+
 
     @Override
     public void pause() {
@@ -120,7 +135,7 @@ public class GoogleCastSession implements CastService.CastSession {
             @Override
             public void onResult(RemoteMediaPlayer.MediaChannelResult mediaChannelResult) {
                 if (mediaChannelResult.getStatus().isSuccess()) {
-                    listener.mediaPaused();
+                    notifyMediaPaused();
                     stopTimeUpdating();
                 }
             }
@@ -152,5 +167,35 @@ public class GoogleCastSession implements CastService.CastSession {
 
     private void stopTimeUpdating() {
         repeatHandler.removeCallbacks(pollTimeRunnable);
+    }
+
+    private void notifyMediaPlaying() {
+        for(Listener listener : listeners) {
+            listener.mediaPlaying();
+        }
+    }
+
+    private void notifyMediaPaused() {
+        for(Listener listener : listeners) {
+            listener.mediaPaused();
+        }
+    }
+
+    private void notifyMediaBuffering() {
+        for(Listener listener : listeners) {
+            listener.mediaBuffering();
+        }
+    }
+
+    private void notifyMediaTimeUpdated() {
+        for(Listener listener : listeners) {
+            listener.mediaPositionUpdate(new Timestamp(remoteMediaPlayer.getApproximateStreamPosition()));
+        }
+    }
+
+    private void notifyMediaLoaded() {
+        for(Listener listener : listeners) {
+            listener.mediaLoaded(remoteMediaPlayer.getMediaInfo().getContentId(), new Timestamp(remoteMediaPlayer.getApproximateStreamPosition()), new Duration(remoteMediaPlayer.getStreamDuration()));
+        }
     }
 }

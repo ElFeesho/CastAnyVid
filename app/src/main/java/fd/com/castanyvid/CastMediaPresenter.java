@@ -4,47 +4,11 @@ import com.google.android.gms.cast.CastDevice;
 
 import java.util.List;
 
-public class CastMediaPresenter implements CastService.CastServiceListener {
+import fd.com.castanyvid.castservice.CastService;
+import fd.com.castanyvid.castservice.CastServiceListener;
+import fd.com.castanyvid.castservice.CastSession;
 
-    private final CastMediaView castMediaView;
-    private final CastMediaView.Listener castMediaViewListener = new CastMediaView.Listener() {
-        @Override
-        public void castMedia(String mediaUrl) {
-            castSession.loadUrl(mediaUrl);
-        }
-    };
-    private CastService.CastSession castSession;
-
-    public CastMediaPresenter(CastMediaView castMediaView) {
-        this.castMediaView = castMediaView;
-        castMediaView.setListener(castMediaViewListener);
-    }
-
-    @Override
-    public void castDevicesAvailable(List<CastDevice> castDevices) {
-    }
-
-    @Override
-    public void castDevicesUnavailable() {
-    }
-
-    @Override
-    public void castSessionAvailable(CastService.CastSession castSession) {
-        castMediaView.allowUse();
-        this.castSession = castSession;
-    }
-
-    @Override
-    public void castSessionUnavailable() {
-        castMediaView.disallowUse();
-        castSession = null;
-    }
-
-    @Override
-    public void castSessionStopped() {
-        castMediaView.disallowUse();
-        castSession = null;
-    }
+public class CastMediaPresenter implements CastServiceListener {
 
     public interface CastMediaView {
         void displayMediaUrl(String mediaUrl);
@@ -60,5 +24,71 @@ public class CastMediaPresenter implements CastService.CastServiceListener {
         }
     }
 
+    private final CastMediaView castMediaView;
+    private final CastMediaView.Listener castMediaViewListener = new CastMediaView.Listener() {
+        @Override
+        public void castMedia(String mediaUrl) {
+            castSession.loadUrl(mediaUrl);
+        }
+    };
 
+    CastSession.Listener sessionListener = new CastSession.Listener() {
+        @Override
+        public void mediaPlaying() {}
+
+        @Override
+        public void mediaPaused() {}
+
+        @Override
+        public void mediaLoaded(String contentId, Timestamp timestamp, Duration duration) {
+            castMediaView.displayMediaUrl(contentId);
+        }
+
+        @Override
+        public void mediaPositionUpdate(Timestamp timestamp) {}
+
+        @Override
+        public void mediaBuffering() {}
+    };
+
+    private CastSession castSession;
+
+    public CastMediaPresenter(CastMediaView castMediaView) {
+        this.castMediaView = castMediaView;
+        castMediaView.setListener(castMediaViewListener);
+    }
+
+    @Override
+    public void castDevicesAvailable(List<CastDevice> castDevices) {
+    }
+
+    @Override
+    public void castDevicesUnavailable() {
+    }
+
+    @Override
+    public void castSessionAvailable(CastSession castSession) {
+        castMediaView.allowUse();
+        this.castSession = castSession;
+
+        this.castSession.addListener(sessionListener);
+    }
+
+    @Override
+    public void castSessionUnavailable() {
+        teardownSession();
+    }
+
+    @Override
+    public void castSessionStopped() {
+        teardownSession();
+    }
+
+    private void teardownSession() {
+        castMediaView.disallowUse();
+        if(castSession != null) {
+            castSession.removeListener(sessionListener);
+        }
+        castSession = null;
+    }
 }

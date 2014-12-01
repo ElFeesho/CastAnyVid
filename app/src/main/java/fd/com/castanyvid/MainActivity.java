@@ -12,6 +12,8 @@ import android.widget.TextView;
 
 import com.google.android.gms.cast.CastDevice;
 
+import fd.com.castanyvid.castservice.CastService;
+
 
 public class MainActivity extends ActionBarActivity {
 

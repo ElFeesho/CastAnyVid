@@ -4,7 +4,11 @@ import com.google.android.gms.cast.CastDevice;
 
 import java.util.List;
 
-public class CastDeviceListPresenter implements CastService.CastServiceListener {
+import fd.com.castanyvid.castservice.CastService;
+import fd.com.castanyvid.castservice.CastServiceListener;
+import fd.com.castanyvid.castservice.CastSession;
+
+public class CastDeviceListPresenter implements CastServiceListener {
 
     private final CastDeviceListView castDeviceListView;
     private final CastDeviceListPresenterListener listener;
@@ -37,7 +41,7 @@ public class CastDeviceListPresenter implements CastService.CastServiceListener 
     }
 
     @Override
-    public void castSessionAvailable(CastService.CastSession castSession) {
+    public void castSessionAvailable(CastSession castSession) {
         castDeviceListView.lockDeviceSelection();
         castDeviceListView.allowStopCast();
     }

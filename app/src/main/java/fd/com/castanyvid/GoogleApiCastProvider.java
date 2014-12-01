@@ -11,7 +11,10 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 
-public class GoogleApiCastProvider implements CastService.CastProvider {
+import fd.com.castanyvid.castservice.CastProvider;
+import fd.com.castanyvid.castservice.CastService;
+
+public class GoogleApiCastProvider implements CastProvider {
     private Context context;
     private GoogleApiClient apiClient;
     private GoogleApiClient.ConnectionCallbacks connectionCallbacks = new GoogleApiClient.ConnectionCallbacks() {

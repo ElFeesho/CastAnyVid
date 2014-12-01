@@ -7,7 +7,10 @@ import android.support.v7.media.MediaRouter;
 import com.google.android.gms.cast.CastDevice;
 import com.google.android.gms.cast.CastMediaControlIntent;
 
-class GoogleApiCastDeviceFinder implements CastService.CastDeviceFinder {
+import fd.com.castanyvid.castservice.CastDeviceFinder;
+import fd.com.castanyvid.castservice.CastService;
+
+class GoogleApiCastDeviceFinder implements CastDeviceFinder {
     private final MediaRouteSelector mediaRouteSelector;
     private final MediaRouter mediaRouter;
     private android.support.v7.media.MediaRouter.Callback mediaRouterCallback = new MediaRouter.Callback() {
