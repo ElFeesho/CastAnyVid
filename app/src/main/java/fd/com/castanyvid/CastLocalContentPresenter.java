@@ -28,6 +28,7 @@ public class CastLocalContentPresenter implements CastServiceListener {
     public interface CastLocalContentSearchProvider
     {
         public void searchForLocalContent();
+        public void playContent(String uri);
     }
 
     private final CastLocalContentView contentView;
@@ -41,7 +42,7 @@ public class CastLocalContentPresenter implements CastServiceListener {
 
         @Override
         public void requestPlay(String uri) {
-
+            searchProvider.playContent(uri);
         }
     };
 

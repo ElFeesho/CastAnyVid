@@ -1,6 +1,7 @@
 package fd.com.castanyvid;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.KeyEvent;
@@ -13,7 +14,10 @@ import android.widget.TextView;
 
 import com.google.android.gms.cast.CastDevice;
 
+import java.io.FileNotFoundException;
+
 import fd.com.castanyvid.castservice.CastService;
+import fd.com.castanyvid.webservice.WebService;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -58,6 +62,26 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void searchForLocalContent() {
                 startActivityForResult(new Intent(Intent.ACTION_PICK).setType("video/*"), 1);
+            }
+
+            @Override
+            public void playContent(final String uri) {
+                CastAVidApplication.getWebService(MainActivity.this).startUp(new WebService.Listener() {
+                    @Override
+                    public void complete() throws FileNotFoundException {
+                        try {
+                            String hostedUrl = CastAVidApplication.getWebService(MainActivity.this).host(getContentResolver().openInputStream(Uri.parse(uri)));
+
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void error() {
+                        // ...
+                    }
+                });
             }
         });
 
