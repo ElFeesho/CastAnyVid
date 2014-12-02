@@ -45,7 +45,7 @@ public class CastAVidApplication extends Application {
 
         castService = new CastService(new GoogleApiCastDeviceFinder(this), new GoogleApiCastProvider(this));
         imageService = new InMemoryImageService();
-        webService = new AndroidWebService();
+        webService = new AndroidWebService(this);
     }
 
 

@@ -9,12 +9,12 @@ import java.io.InputStream;
 public interface WebService {
     public interface Listener
     {
-        public void complete() throws FileNotFoundException;
+        public void complete();
         public void error();
     }
     void startUp(Listener listener);
 
     void shutdown(Listener listener);
 
-    String host(InputStream data);
+    String host(String filePath);
 }

@@ -1,9 +1,12 @@
 package fd.com.castanyvid;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,8 +16,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.android.gms.cast.CastDevice;
-
-import java.io.FileNotFoundException;
 
 import fd.com.castanyvid.castservice.CastService;
 import fd.com.castanyvid.webservice.WebService;
@@ -58,23 +59,21 @@ public class MainActivity extends ActionBarActivity {
 
         castPlaybackControlPresenter = new CastPlaybackControlPresenter(new SeekbarPlaybackControlView((SeekBar) findViewById(R.id.playback_position), (TextView) findViewById(R.id.currentPosition), (TextView) findViewById(R.id.duration), findViewById(R.id.play_button), findViewById(R.id.pause_button), (ProgressBar) findViewById(R.id.buffer_indicator)));
 
-        castLocalContentPresenter = new CastLocalContentPresenter(new LocalContentView((EditText)findViewById(R.id.cast_local_content_uri), (Button)findViewById(R.id.cast_select_local_content), (Button)findViewById(R.id.cast_play_local_content)), new CastLocalContentPresenter.CastLocalContentSearchProvider() {
+        castLocalContentPresenter = new CastLocalContentPresenter(new LocalContentView((EditText) findViewById(R.id.cast_local_content_uri), (Button) findViewById(R.id.cast_select_local_content), (Button) findViewById(R.id.cast_play_local_content)), new CastLocalContentPresenter.CastLocalContentSearchProvider() {
             @Override
             public void searchForLocalContent() {
                 startActivityForResult(new Intent(Intent.ACTION_PICK).setType("video/*"), 1);
             }
-
+        }, new CastLocalContentPresenter.CastLocalContentCastProvider() {
             @Override
-            public void playContent(final String uri) {
+            public void playContent(final String uri, final CastLocalContentCastProviderListener listener) {
+
                 CastAVidApplication.getWebService(MainActivity.this).startUp(new WebService.Listener() {
                     @Override
-                    public void complete() throws FileNotFoundException {
-                        try {
-                            String hostedUrl = CastAVidApplication.getWebService(MainActivity.this).host(getContentResolver().openInputStream(Uri.parse(uri)));
-
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        }
+                    public void complete() {
+                        String hostedUrl = CastAVidApplication.getWebService(MainActivity.this).host(uri);
+                        Log.d("STREAMHOSTING", "Hosting at: " + hostedUrl);
+                        listener.localStreamAvailable(hostedUrl);
                     }
 
                     @Override
@@ -82,6 +81,7 @@ public class MainActivity extends ActionBarActivity {
                         // ...
                     }
                 });
+
             }
         });
 
@@ -91,9 +91,20 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == 1 && resultCode == RESULT_OK)
-        {
-            castLocalContentPresenter.displayUri(data.getDataString());
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+            Uri selectedImage = data.getData();
+            String[] filePathColumn = {MediaStore.Images.Media.DATA};
+
+            Cursor cursor = getContentResolver().query(selectedImage,
+                    filePathColumn, null, null, null);
+            cursor.moveToFirst();
+
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            String picturePath = cursor.getString(columnIndex);
+            cursor.close();
+
+            castLocalContentPresenter.displayUri(picturePath);
+
         }
     }
 
