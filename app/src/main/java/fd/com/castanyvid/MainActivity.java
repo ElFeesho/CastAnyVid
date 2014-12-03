@@ -20,7 +20,6 @@ import com.google.android.gms.cast.CastDevice;
 import fd.com.castanyvid.castservice.CastService;
 import fd.com.castanyvid.webservice.WebService;
 
-
 public class MainActivity extends ActionBarActivity {
 
     private CastDeviceListPresenter castDeviceListPresenter;
@@ -93,18 +92,15 @@ public class MainActivity extends ActionBarActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1 && resultCode == RESULT_OK) {
             Uri selectedImage = data.getData();
-            String[] filePathColumn = {MediaStore.Images.Media.DATA};
 
-            Cursor cursor = getContentResolver().query(selectedImage,
-                    filePathColumn, null, null, null);
+            Cursor cursor = getContentResolver().query(selectedImage,new String[]{MediaStore.Images.Media.DATA}, null, null, null);
             cursor.moveToFirst();
 
-            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            int columnIndex = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
             String picturePath = cursor.getString(columnIndex);
             cursor.close();
 
             castLocalContentPresenter.displayUri(picturePath);
-
         }
     }
 
@@ -137,6 +133,5 @@ public class MainActivity extends ActionBarActivity {
         castService.removeListener(castMediaPresenter);
         castService.removeListener(castPlaybackControlPresenter);
         castService.removeListener(castLocalContentPresenter);
-
     }
 }

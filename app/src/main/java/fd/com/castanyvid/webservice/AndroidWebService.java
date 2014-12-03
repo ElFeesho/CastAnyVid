@@ -13,13 +13,8 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.text.format.Formatter;
 
-import java.io.InputStream;
-
 import fd.com.castanyvid.MainActivity;
 
-/**
- * Created by sawczc01 on 01/12/2014.
- */
 public class AndroidWebService implements WebService {
 
     public static class AndroidWebServiceService extends Service
@@ -67,12 +62,12 @@ public class AndroidWebService implements WebService {
         public int onStartCommand(Intent intent, int flags, int startId) {
             if(intent != null && intent.getAction() != null && intent.getAction().contentEquals(STOP_SERVICE))
             {
-                stopForeground(true);
+                //stopForeground(true);
                 stopSelf();
                 return START_NOT_STICKY;
             }
 
-            startForeground(1, buildForegroundNotification());
+            //startForeground(1, buildForegroundNotification());
             return START_STICKY;
         }
 

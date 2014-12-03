@@ -84,8 +84,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_below="@+id/cast_url_title"
                 android:layout_toLeftOf="@+id/cast_play_content"
-                android:inputType="textUri"
-                android:text="http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4" />
+                android:inputType="textUri" />
 
             <Button
                 android:id="@+id/cast_play_content"
@@ -125,8 +124,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_below="@+id/cast_local_title"
                 android:layout_toLeftOf="@+id/cast_select_local_content"
-                android:inputType="textUri"
-                android:text="file:///sdcard/bbb.mp4" />
+                android:inputType="textUri" />
 
 
             <Button
