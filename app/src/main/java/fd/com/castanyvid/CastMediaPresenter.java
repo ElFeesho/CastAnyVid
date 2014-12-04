@@ -4,7 +4,6 @@ import com.google.android.gms.cast.CastDevice;
 
 import java.util.List;
 
-import fd.com.castanyvid.castservice.CastService;
 import fd.com.castanyvid.castservice.CastServiceListener;
 import fd.com.castanyvid.castservice.CastSession;
 

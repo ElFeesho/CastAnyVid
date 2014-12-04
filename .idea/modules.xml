@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/CastAnyVid.iml" filepath="$PROJECT_DIR$/CastAnyVid.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/libcastanyvid/libcastanyvid.iml" filepath="$PROJECT_DIR$/libcastanyvid/libcastanyvid.iml" />
     </modules>
   </component>
 </project>

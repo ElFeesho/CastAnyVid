@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import fd.com.castanyvid.castservice.CastService;
 import fd.com.castanyvid.castservice.CastSession;
 
 public class GoogleCastSession implements CastSession {

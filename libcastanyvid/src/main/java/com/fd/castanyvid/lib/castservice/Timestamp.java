@@ -1,12 +1,12 @@
-package fd.com.castanyvid;
+package com.fd.castanyvid.lib.castservice;
 
 /**
  * Created by chris on 28/11/14.
  */
-public class Duration {
+public class Timestamp {
     public final long milliseconds;
 
-    public Duration(long milliseconds) {
+    public Timestamp(long milliseconds) {
         this.milliseconds = milliseconds;
     }
 
